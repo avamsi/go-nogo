@@ -1,0 +1,38 @@
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        required: true
+        type: string
+      run:
+        type: string
+    outputs:
+      modules:
+        value: ${{ jobs.resolve-modules.outputs.modules }}
+
+jobs:
+  resolve-modules:
+    runs-on: ${{ inputs.runs-on }}
+    outputs:
+      modules: ${{ steps.resolve.outputs.modules }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: resolve
+        run: |
+          modules="$(find -name go.mod -type f -printf '"%h", ')"
+          echo "modules=[${modules%??}]" >> $GITHUB_OUTPUT
+
+  module:
+    needs: resolve-modules
+    runs-on: ${{ inputs.runs-on }}
+    strategy:
+      matrix:
+        module: ${{ fromJson(needs.resolve-modules.outputs.modules) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: stable
+      - if: inputs.run
+        working-directory: ${{ matrix.module }}
+        run: ${{ inputs.run }}

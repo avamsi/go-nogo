@@ -1,0 +1,46 @@
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        required: true
+        type: string
+
+jobs:
+  build-and-test:
+    uses: ./.github/workflows/modules.yml
+    with:
+      runs-on: ${{ inputs.runs-on }}
+      run: |
+        set -x
+        go build -v ./...
+        go test  -v ./...
+
+  generate:
+    uses: ./.github/workflows/modules.yml
+    with:
+      runs-on: ${{ inputs.runs-on }}
+      run: |
+        set -x
+        go generate -v ./...
+        git status --porcelain | tee /dev/full
+
+  modules:
+    uses: ./.github/workflows/modules.yml
+    with:
+      runs-on: ${{ inputs.runs-on }}
+
+  lint:
+    needs: modules
+    strategy:
+      matrix:
+        module: ${{ fromJson(needs.modules.outputs.modules) }}
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: stable
+      - uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          working-directory: ${{ matrix.module }}
