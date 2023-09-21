@@ -38,7 +38,7 @@ jobs:
     strategy:
       matrix:
         module: ${{ fromJson(needs.modules.outputs.modules) }}
-    name: '. / lint-module'
+    name: . / lint-module
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v4
