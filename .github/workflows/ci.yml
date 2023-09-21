@@ -6,40 +6,49 @@ on:
         type: string
 
 jobs:
+  resolve-modules:
+    uses: ./.github/workflows/resolve-modules.yml
+
   build-and-test:
-    name: .
-    uses: ./.github/workflows/modules.yml
-    with:
-      prefix: build-and-test
-      runs-on: ${{ inputs.runs-on }}
-      run: |
-        set -x
-        go build -v ./...
-        go test  -v ./...
-
-  generate:
-    name: .
-    uses: ./.github/workflows/modules.yml
-    with:
-      prefix: generate
-      runs-on: ${{ inputs.runs-on }}
-      run: |
-        set -x
-        go generate -v ./...
-        git status --porcelain | tee /dev/full
-
-  modules:
-    uses: ./.github/workflows/modules.yml
-    with:
-      runs-on: ${{ inputs.runs-on }}
-
-  lint:
-    needs: modules
+    needs: resolve-modules
+    runs-on: ${{ inputs.runs-on }}
     strategy:
       matrix:
-        module: ${{ fromJson(needs.modules.outputs.modules) }}
-    name: . / lint-module
+        module: ${{ fromJson(needs.resolve-modules.outputs.modules) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: stable
+      - working-directory: ${{ matrix.module }}
+        run: |
+          set -x
+          go build -v ./...
+          go test  -v ./...
+
+  generate:
+    needs: resolve-modules
     runs-on: ${{ inputs.runs-on }}
+    strategy:
+      matrix:
+        module: ${{ fromJson(needs.resolve-modules.outputs.modules) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: stable
+      - working-directory: ${{ matrix.module }}
+        run: |
+          set -x
+          go generate -v ./...
+          git status --porcelain | tee /dev/full
+
+  lint:
+    needs: resolve-modules
+    runs-on: ${{ inputs.runs-on }}
+    strategy:
+      matrix:
+        module: ${{ fromJson(needs.resolve-modules.outputs.modules) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4

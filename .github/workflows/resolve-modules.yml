@@ -1,0 +1,18 @@
+on:
+  workflow_call:
+    outputs:
+      modules:
+        value: ${{ jobs.resolve-modules.outputs.modules }}
+
+jobs:
+  resolve-modules:
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.resolve.outputs.modules }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: resolve
+        run: |
+          set -x
+          modules="$(find -name go.mod -type f -printf '"%h", ')"
+          echo "modules=[${modules%??}]" >> $GITHUB_OUTPUT
