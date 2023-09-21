@@ -8,3 +8,9 @@ jobs:
     with:
       runs-on: ubuntu-latest
 ```
+
+Following commands are run for each module in the repo --
+- go build
+- go test
+- go generate (and assert nothing changed)
+- golangci-lint
