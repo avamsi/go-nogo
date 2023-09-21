@@ -15,16 +15,16 @@ jobs:
     strategy:
       matrix:
         module: ${{ fromJson(needs.resolve-modules.outputs.modules) }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.module }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
         with:
           go-version: stable
-      - working-directory: ${{ matrix.module }}
-        run: |
-          set -x
-          go build -v ./...
-          go test  -v ./...
+      - run: go build -v ./...
+      - run: go test  -v ./...
 
   generate:
     needs: resolve-modules
@@ -37,7 +37,10 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: stable
-      - working-directory: ${{ matrix.module }}
+      - shell: bash
+        working-directory: ${{ matrix.module }}
+        # TODO: should we limit git status to just the working directory?
+        # Also, should we run git status beforehand to check for changes?
         run: |
           set -x
           go generate -v ./...
