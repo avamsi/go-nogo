@@ -31,7 +31,7 @@ jobs:
     strategy:
       matrix:
         module: ${{ fromJson(needs.resolve-modules.outputs.modules) }}
-    name: '${{ inputs.prefix }}: module (${{ matrix.module }})'
+    name: '${{ inputs.prefix }}-module (${{ matrix.module }})'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4

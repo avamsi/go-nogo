@@ -7,6 +7,7 @@ on:
 
 jobs:
   build-and-test:
+    name: .
     uses: ./.github/workflows/modules.yml
     with:
       prefix: build-and-test
@@ -17,6 +18,7 @@ jobs:
         go test  -v ./...
 
   generate:
+    name: .
     uses: ./.github/workflows/modules.yml
     with:
       prefix: generate
@@ -29,7 +31,6 @@ jobs:
   modules:
     uses: ./.github/workflows/modules.yml
     with:
-      prefix:
       runs-on: ${{ inputs.runs-on }}
 
   lint:
@@ -37,7 +38,7 @@ jobs:
     strategy:
       matrix:
         module: ${{ fromJson(needs.modules.outputs.modules) }}
-    name: 'lint: module'
+    name: '. / lint-module'
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v4
