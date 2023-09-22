@@ -7,7 +7,9 @@ on:
 
 jobs:
   resolve-modules:
-    uses: ./.github/workflows/resolve-modules.yml
+    # TODO: it would be better to use the relative path to resolve-modules.yml
+    # here but it doesn't work with act (yet -- nektos/act#1875).
+    uses: avamsi/go-nogo/.github/workflows/resolve-modules.yml@main
 
   build-and-test:
     needs: resolve-modules
