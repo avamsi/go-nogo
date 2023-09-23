@@ -11,22 +11,21 @@ jobs:
     # here but it doesn't work with act (yet -- nektos/act#1875).
     uses: avamsi/go-nogo/.github/workflows/resolve-modules.yml@main
 
-  build-and-test:
+  lint:
     needs: resolve-modules
     runs-on: ${{ inputs.runs-on }}
     strategy:
       matrix:
         module: ${{ fromJson(needs.resolve-modules.outputs.modules) }}
-    defaults:
-      run:
-        working-directory: ${{ matrix.module }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
         with:
           go-version: stable
-      - run: go build -v ./...
-      - run: go test  -v ./...
+      - uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          working-directory: ${{ matrix.module }}
 
   generate:
     needs: resolve-modules
@@ -48,18 +47,26 @@ jobs:
           go generate -v ./...
           git status --porcelain | tee /dev/full
 
-  lint:
+  build-and-test:
     needs: resolve-modules
     runs-on: ${{ inputs.runs-on }}
     strategy:
       matrix:
         module: ${{ fromJson(needs.resolve-modules.outputs.modules) }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.module }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
         with:
           go-version: stable
-      - uses: golangci/golangci-lint-action@v3
-        with:
-          version: latest
-          working-directory: ${{ matrix.module }}
+      - run: go build -v ./...
+      - run: go test  -v ./...
+      # Test with -race if both build and (vanilla) test are successful, but
+      # it's probably an overkill to run it on every commit, so run it an order
+      # of magnitude less often (by using the commit SHA).
+      # TODO: ideally, we'd have a way of forcing this as it's possible for
+      # subsequent commits after a failure to not contain ff in the SHA.
+      - if: ${{ contains(github.sha, 'ff') }}
+        run: go test -race -v ./...
