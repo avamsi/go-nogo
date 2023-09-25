@@ -49,6 +49,25 @@ jobs:
           go generate -v ./...
           git status --porcelain | tee /dev/full
 
+  mod-tidy:
+    needs: resolve-modules
+    runs-on: ${{ inputs.runs-on }}
+    strategy:
+      matrix:
+        module: ${{ fromJson(needs.resolve-modules.outputs.modules) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: stable
+      - shell: bash
+        working-directory: ${{ matrix.module }}
+        # TODO: should we run git status beforehand to check for changes?
+        run: |
+          set -x
+          go mod tidy
+          git status --porcelain | tee /dev/full
+
   build-and-test:
     needs: resolve-modules
     runs-on: ${{ inputs.runs-on }}

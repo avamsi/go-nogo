@@ -13,6 +13,7 @@ Following commands are run on each module in the repo --
 
 - golangci-lint
 - (assert nothing changed on) go generate
+- (assert nothing changed on) go mod tidy
 - go build
 - go test (which includes go vet)
 - (an order of magnitude less often) go test -race
