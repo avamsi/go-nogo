@@ -26,6 +26,8 @@ jobs:
         with:
           version: latest
           working-directory: ${{ matrix.module }}
+          # TODO: consider enabling revive too.
+          args: --enable=gosec,misspell,prealloc
 
   generate:
     needs: resolve-modules
