@@ -17,5 +17,6 @@ Following commands are run on each module in the repo --
 - go build
 - go test (which includes go vet)
 - (an order of magnitude less often) go test -race
+- (an order of magnitude less often) go test -count=10000
 
 See https://github.com/avamsi/climate/actions/runs/6254356594 for an example run.

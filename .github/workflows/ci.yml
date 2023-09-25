@@ -84,10 +84,13 @@ jobs:
           go-version: stable
       - run: go build -v ./...
       - run: go test  -v ./...
-      # Test with -race if both build and (vanilla) test are successful, but
-      # it's probably an overkill to run it on every commit, so run it an order
-      # of magnitude less often (by using the commit SHA).
+      # Test with -race and -count=10000 if both build and (vanilla) test are
+      # successful, but it's probably overkill to run them on every commit, so
+      # run them an order of magnitude less often (by using the commit SHA).
       # TODO: ideally, we'd have a way of forcing this as it's possible for
       # subsequent commits after a failure to not contain ff in the SHA.
       - if: ${{ contains(github.sha, 'ff') }}
-        run: go test -race -v ./...
+        run: |
+          set -x
+          go test -v ./... -race
+          go test -v ./... -count=10000
