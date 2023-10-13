@@ -97,4 +97,4 @@ jobs:
         run: |
           set -x
           go test -v ./... -race
-          go test -v ./... -count=10000
+          go test    ./... -count=10000
