@@ -44,12 +44,10 @@ jobs:
           go-version: stable
       - shell: bash
         working-directory: ${{ matrix.module }}
-        # TODO: should we limit git status to just the working directory?
-        # Also, should we run git status beforehand to check for changes?
         run: |
           set -x
           go generate -v ./...
-          git status --porcelain | tee /dev/full
+          git diff HEAD | tee /dev/full
 
   mod-tidy:
     needs: resolve-modules
@@ -65,11 +63,10 @@ jobs:
           go-version: stable
       - shell: bash
         working-directory: ${{ matrix.module }}
-        # TODO: should we run git status beforehand to check for changes?
         run: |
           set -x
           go mod tidy
-          git status --porcelain | tee /dev/full
+          git diff HEAD | tee /dev/full
 
   build-and-test:
     needs: resolve-modules
