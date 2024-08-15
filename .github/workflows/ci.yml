@@ -61,10 +61,7 @@ jobs:
         with:
           go-version: stable
       - working-directory: ${{ matrix.module }}
-        run: |
-          set -x
-          go mod tidy
-          git diff HEAD | tee /dev/full
+        run: go mod tidy -diff
 
   build-and-test:
     needs: resolve-modules
