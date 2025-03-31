@@ -27,8 +27,7 @@ jobs:
         with:
           version: latest
           working-directory: ${{ matrix.module }}
-          # TODO: consider enabling revive too.
-          args: --enable=gofumpt,gosec,misspell,prealloc
+          args: --enable=gosec,misspell,prealloc
 
   generate:
     needs: resolve-modules
@@ -83,7 +82,7 @@ jobs:
       # Test with -race and -count=10000 if both build and (vanilla) test are
       # successful, but it's probably overkill to run them on every commit, so
       # run them an order of magnitude less often using metadata.
-      - run: ': ${{ github.event.number }} ${{ github.sha }}'
+      - run: ": ${{ github.event.number }} ${{ github.sha }}"
       - if: ${{ endsWith(github.event.number, '9') || endsWith(github.sha, 'f') }}
         run: |
           set -x
