@@ -10,7 +10,7 @@ jobs:
     outputs:
       modules: ${{ steps.resolve.outputs.modules }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: resolve
         run: |
           set -x
